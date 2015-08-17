@@ -5,3 +5,5 @@
 /.vs/DemoEffects/v14/.suo
 /DemoEffects/bin/Debug
 /DemoEffects/obj/Debug
+/DemoEffects/obj/Windows
+/DemoEffects/Content

@@ -12,12 +12,15 @@ type Game () as this =
     let graphics = new GraphicsDeviceManager(this)
     let mutable spriteBatch = Unchecked.defaultof<SpriteBatch>
  
+    let pixel = lazy this.Content.Load<Texture2D> "pixel"
+
     override this.Initialize() =
-        do spriteBatch <- new SpriteBatch(this.GraphicsDevice)
         do base.Initialize()
+        do spriteBatch <- new SpriteBatch(this.GraphicsDevice)
         ()
  
     override this.LoadContent() =
+        pixel.Force() |> ignore
         ()
  
     override this.Update (gameTime) =
@@ -25,4 +28,7 @@ type Game () as this =
  
     override this.Draw (gameTime) =
         do this.GraphicsDevice.Clear Color.CornflowerBlue
+        spriteBatch.Begin()
+        spriteBatch.Draw(pixel.Force(), Rectangle(10, 10, 10, 10), Color(25, 250, 45))
+        spriteBatch.End()
         ()
