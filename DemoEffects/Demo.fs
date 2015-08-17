@@ -31,9 +31,9 @@ type Game () as this =
     let mutable plasmaState = None
  
     let pixel = lazy this.Content.Load<Texture2D> "pixel"
-    let pixelSize = 5
-    let width = 800 / pixelSize
-    let height = 600 / pixelSize
+    let pixelSize = 10
+    let width = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width / pixelSize
+    let height = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height / pixelSize
     let width' = (float)width
     let height' = (float)height
 
@@ -71,6 +71,10 @@ type Game () as this =
 
     override this.Initialize() =
         do base.Initialize()
+        do graphics.PreferredBackBufferWidth <- width
+        do graphics.PreferredBackBufferHeight <- height
+        do graphics.IsFullScreen <- true
+        do graphics.ApplyChanges()
         do spriteBatch <- new SpriteBatch(this.GraphicsDevice)
         ()
  
@@ -79,8 +83,12 @@ type Game () as this =
         ()
  
     override this.Update (gameTime) =
-        let diff = (float)gameTime.TotalGameTime.TotalSeconds
-        do plasmaState <- Some (plasma diff)
+        let keyState = Keyboard.GetState()
+        match keyState.IsKeyDown(Keys.Escape) with
+            | true -> do base.Exit()
+            | false -> let diff = (float)gameTime.TotalGameTime.TotalSeconds
+                       do plasmaState <- Some (plasma diff)
+                       do base.Update( gameTime )
         ()
  
     override this.Draw (gameTime) =        
