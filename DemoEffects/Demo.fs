@@ -40,13 +40,13 @@ type Game () as this =
     let pointList =
         [ for x in 0..width do
             yield [for y in 0..height do
-                    yield { x = x * pixelSize; y = y * pixelSize; } ] ]
+                    yield { x = x; y = y; } ] ]
         |> Seq.concat
         |> List.ofSeq
 
     let plasmaOne tick point =
-        let x' = (float)point.x / width'
-        let y' = (float)point.y / height'
+        let x' = (float)point.x / width' * 2.0
+        let y' = (float)point.y / height' * 2.0
         let cx = x' + 0.5 * sin ( tick / 5.0)
         let cy = y' + 0.5 * cos ( tick / 3.0)
         { location = point;
@@ -67,7 +67,7 @@ type Game () as this =
 
     let drawPoint point =
         let pixel' = pixel.Force()
-        spriteBatch.Draw(pixel', Rectangle(point.location.x, point.location.y, pixelSize, pixelSize), Color(point.colour.r, point.colour.g, point.colour.b))
+        spriteBatch.Draw(pixel', Rectangle(point.location.x * pixelSize, point.location.y * pixelSize, pixelSize, pixelSize), Color(point.colour.r, point.colour.g, point.colour.b))
 
     override this.Initialize() =
         do base.Initialize()
