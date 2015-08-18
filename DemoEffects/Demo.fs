@@ -5,10 +5,13 @@ open Microsoft.Xna.Framework.Content
 open Microsoft.Xna.Framework.Graphics
 open Microsoft.Xna.Framework.Input
 open Plasma
+open Stars
 
 type GameState =
-    | None
+    | NoState
     | Plasma of ColourPoint list
+    | Stars of Star list
+
 
 type Game () as this =
     inherit Microsoft.Xna.Framework.Game()
@@ -18,7 +21,7 @@ type Game () as this =
     let mutable spriteBatch = Unchecked.defaultof<SpriteBatch>
     let pixel = lazy this.Content.Load<Texture2D> "pixel"
 
-    let mutable currentEffect = None
+    let mutable currentEffect = NoState
 
     override this.Initialize() =
         do base.Initialize()
@@ -33,15 +36,23 @@ type Game () as this =
  
     override this.Update (gameTime) = 
         match currentEffect with
-            | None -> do currentEffect <- Plasma (plasmaUpdate gameTime)
+            | NoState -> do currentEffect <- Plasma (plasmaUpdate gameTime)
             | Plasma _ -> do currentEffect <- Plasma (plasmaUpdate gameTime)
+            | Stars state -> do currentEffect <- Stars (starsUpdate gameTime (Some state))
 
         let keyState = Keyboard.GetState()
         match keyState.IsKeyDown(Keys.Escape) with
             | true -> do base.Exit()
             | false -> do base.Update(gameTime)
+        match keyState.IsKeyDown(Keys.Space) with
+            | true -> match currentEffect with
+                          | NoState -> do currentEffect <- Plasma (plasmaUpdate gameTime)
+                          | Plasma _ -> do currentEffect <- Stars (starsUpdate gameTime None)
+                          | Stars _ -> do currentEffect <- Plasma (plasmaUpdate gameTime)
+            | false -> ()
  
     override this.Draw (gameTime) =        
         match currentEffect with
-            | None -> ()
+            | NoState -> ()
             | Plasma state -> do plasmaDraw spriteBatch (pixel.Force()) state
+            | Stars state -> do starsDraw graphics.GraphicsDevice spriteBatch (pixel.Force()) state
