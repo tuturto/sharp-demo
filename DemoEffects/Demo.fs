@@ -6,6 +6,10 @@ open Microsoft.Xna.Framework.Graphics
 open Microsoft.Xna.Framework.Input
 open Plasma
 
+type GameState =
+    | None
+    | Plasma of ColourPoint list
+
 type Game () as this =
     inherit Microsoft.Xna.Framework.Game()
  
@@ -29,8 +33,8 @@ type Game () as this =
  
     override this.Update (gameTime) = 
         match currentEffect with
-            | None -> currentEffect <- Some (PlasmaEffect(spriteBatch, pixel.Force()))
-            | Some state -> currentEffect <- Some (state.Update gameTime)
+            | None -> do currentEffect <- Plasma (plasmaUpdate gameTime)
+            | Plasma _ -> do currentEffect <- Plasma (plasmaUpdate gameTime)
 
         let keyState = Keyboard.GetState()
         match keyState.IsKeyDown(Keys.Escape) with
@@ -40,4 +44,4 @@ type Game () as this =
     override this.Draw (gameTime) =        
         match currentEffect with
             | None -> ()
-            | Some state -> do state.Draw(gameTime)
+            | Plasma state -> do plasmaDraw spriteBatch (pixel.Force()) state

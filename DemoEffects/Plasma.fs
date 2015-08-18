@@ -58,23 +58,10 @@ let plasma tick =
 let drawPoint (spriteBatch : SpriteBatch) pixel point =
     spriteBatch.Draw(pixel, Rectangle(point.location.x * pixelSize, point.location.y * pixelSize, pixelSize, pixelSize), Color(point.colour.r, point.colour.g, point.colour.b))
 
-type PlasmaEffect (spriteBatch:SpriteBatch, pixel) =
-    
-    let spriteBatch = spriteBatch
-    let pixel = pixel
-    let mutable plasmaState = None
+let plasmaUpdate (gameTime : GameTime) =
+    plasma ((float)gameTime.TotalGameTime.TotalSeconds)
 
-    member this.Update (gameTime : GameTime) =
-        let keyState = Keyboard.GetState()
-        match keyState.IsKeyDown(Keys.Escape) with
-            | true -> do ()
-            | false -> do plasmaState <- Some (plasma ((float)gameTime.TotalGameTime.TotalSeconds))
-        this
-
-    member this.Draw gameTime =
-        match plasmaState with
-            | None -> ()
-            | Some state -> do
-                spriteBatch.Begin()
-                List.iter (drawPoint spriteBatch pixel) state
-                spriteBatch.End()
+let plasmaDraw (spriteBatch:SpriteBatch) pixel state =
+    spriteBatch.Begin()
+    List.iter (drawPoint spriteBatch pixel) state
+    spriteBatch.End()
