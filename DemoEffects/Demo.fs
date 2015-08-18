@@ -14,7 +14,7 @@ type Game () as this =
     let mutable spriteBatch = Unchecked.defaultof<SpriteBatch>
     let pixel = lazy this.Content.Load<Texture2D> "pixel"
 
-    let mutable state = None
+    let mutable currentEffect = None
 
     override this.Initialize() =
         do base.Initialize()
@@ -23,25 +23,21 @@ type Game () as this =
         do graphics.IsFullScreen <- true
         do graphics.ApplyChanges()
         do spriteBatch <- new SpriteBatch(this.GraphicsDevice)
-        ()
  
     override this.LoadContent() =
         pixel.Force() |> ignore
-        ()
  
     override this.Update (gameTime) = 
-        match state with
-            | None -> state <- Some (PlasmaEffect(spriteBatch, pixel.Force()))
-            | Some state -> do state.Update gameTime
+        match currentEffect with
+            | None -> currentEffect <- Some (PlasmaEffect(spriteBatch, pixel.Force()))
+            | Some state -> currentEffect <- Some (state.Update gameTime)
 
         let keyState = Keyboard.GetState()
         match keyState.IsKeyDown(Keys.Escape) with
             | true -> do base.Exit()
             | false -> do base.Update(gameTime)
-        ()
  
     override this.Draw (gameTime) =        
-        match state with
+        match currentEffect with
             | None -> ()
             | Some state -> do state.Draw(gameTime)
-        ()

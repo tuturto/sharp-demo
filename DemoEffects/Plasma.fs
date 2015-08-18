@@ -36,8 +36,8 @@ let pointList =
     |> List.ofSeq
 
 let plasmaOne tick point =
-    let x' = (float)point.x / width' * 2.0
-    let y' = (float)point.y / height' * 2.0
+    let x' = (float)point.x / width' * 1.5
+    let y' = (float)point.y / height' * 1.5
     let cx = x' + 0.5 * sin ( tick / 5.0 )
     let cy = y' + 0.5 * cos ( tick / 3.0 )
     { location = point;
@@ -58,7 +58,7 @@ let plasma tick =
 let drawPoint (spriteBatch : SpriteBatch) pixel point =
     spriteBatch.Draw(pixel, Rectangle(point.location.x * pixelSize, point.location.y * pixelSize, pixelSize, pixelSize), Color(point.colour.r, point.colour.g, point.colour.b))
 
-type PlasmaEffect (spriteBatch:SpriteBatch, pixel) as this =
+type PlasmaEffect (spriteBatch:SpriteBatch, pixel) =
     
     let spriteBatch = spriteBatch
     let pixel = pixel
@@ -68,10 +68,8 @@ type PlasmaEffect (spriteBatch:SpriteBatch, pixel) as this =
         let keyState = Keyboard.GetState()
         match keyState.IsKeyDown(Keys.Escape) with
             | true -> do ()
-            | false -> let diff = (float)gameTime.TotalGameTime.TotalSeconds
-                       do plasmaState <- Some (plasma diff)
-                       do ()
-        ()
+            | false -> do plasmaState <- Some (plasma ((float)gameTime.TotalGameTime.TotalSeconds))
+        this
 
     member this.Draw gameTime =
         match plasmaState with
@@ -80,4 +78,3 @@ type PlasmaEffect (spriteBatch:SpriteBatch, pixel) as this =
                 spriteBatch.Begin()
                 List.iter (drawPoint spriteBatch pixel) state
                 spriteBatch.End()
-        ()
