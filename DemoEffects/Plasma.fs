@@ -22,7 +22,7 @@ type ColourPoint =
     { location : Location;
       colour : Colour }
 
-let pixelSize = 10
+let pixelSize = 12
 let width = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width / pixelSize
 let height = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height / pixelSize
 let width' = (float)width
@@ -36,8 +36,8 @@ let pointList =
     |> List.ofSeq
 
 let plasmaOne tick point =
-    let x' = (float)point.x / width' * 1.5
-    let y' = (float)point.y / height' * 1.5
+    let x' = (float)point.x / width' * (8.0 * sin (tick / 12.0))
+    let y' = (float)point.y / height' * (8.0 * cos (tick / 20.0))
     let cx = x' + 0.5 * sin ( tick / 5.0 )
     let cy = y' + 0.5 * cos ( tick / 3.0 )
     { location = point;
@@ -48,8 +48,8 @@ let plasmaOne tick point =
 let colour ( v : PlasmaPoint ) =
     { location = v.location; 
       colour = { r = (int)(( sin ( v.v * (float)MathHelper.Pi ) + 1.0 ) * 128.0 );
-                 g = (int)(( cos ( v.v * (float)MathHelper.Pi ) + 1.0 ) * 128.0 );
-                 b = 0; } }
+                 b = (int)(( cos ( v.v * (float)MathHelper.Pi ) + 1.0 ) * 128.0 );
+                 g = (int)((( sin ( v.v * (float)MathHelper.Pi ) + 1.0 ) * 64.0 ) + (( cos ( v.v * (float)MathHelper.Pi ) + 1.0 ) * 64.0 )); } }
 
 let plasma tick =
     let vList = List.map (plasmaOne tick) pointList
