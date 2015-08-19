@@ -12,6 +12,9 @@ type GameState =
     | Plasma of ColourPoint list
     | Stars of Star list
 
+type SwitchState =
+    | Switching
+    | Ready
 
 type Game () as this =
     inherit Microsoft.Xna.Framework.Game()
@@ -22,6 +25,7 @@ type Game () as this =
     let pixel = lazy this.Content.Load<Texture2D> "pixel"
 
     let mutable currentEffect = NoState
+    let mutable switchStatus = Ready
 
     override this.Initialize() =
         do base.Initialize()
@@ -44,12 +48,24 @@ type Game () as this =
         match keyState.IsKeyDown(Keys.Escape) with
             | true -> do base.Exit()
             | false -> do base.Update(gameTime)
-        match keyState.IsKeyDown(Keys.Space) with
-            | true -> match currentEffect with
-                          | NoState -> do currentEffect <- Plasma (plasmaUpdate gameTime)
-                          | Plasma _ -> do currentEffect <- Stars (starsUpdate gameTime None)
-                          | Stars _ -> do currentEffect <- Plasma (plasmaUpdate gameTime)
-            | false -> ()
+        match switchStatus with
+            | Ready ->
+                match keyState.IsKeyDown(Keys.Space) with
+                    | true -> match currentEffect with
+                                  | NoState 
+                                        -> do currentEffect <- Plasma (plasmaUpdate gameTime)
+                                           do switchStatus <- Switching
+                                  | Plasma _ 
+                                        -> do currentEffect <- Stars (starsUpdate gameTime None)
+                                           do switchStatus <- Switching
+                                  | Stars _ 
+                                        -> do currentEffect <- Plasma (plasmaUpdate gameTime)
+                                           do switchStatus <- Switching
+                    | false -> ()
+            | Switching ->
+                match keyState.IsKeyDown(Keys.Space) with
+                    | true -> ()
+                    | false -> do switchStatus <- Ready
  
     override this.Draw (gameTime) =        
         match currentEffect with
